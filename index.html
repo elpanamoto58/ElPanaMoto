@@ -1,642 +1,440 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ElPanaMoto | Servicio de Mototaxi en Barinas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElPanaMoto - Servicio de Mototaxi en Barinas</title>
+    
+    <!-- Configuración PWA y Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/png" href="assets/logo.png">
 
-  <!-- PWA & SEO Meta Tags -->
-  <meta name="theme-color" content="#121212">
-  <meta name="description" content="Servicio de mototaxi rápido, seguro y confiable en Barinas. Únete como cliente o mototaxista. Hecho en Barinas.">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="assets/logo.png">
+    <!-- Leaflet CSS para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <!-- Font Awesome Icons & Google Fonts -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-orange: #f97316;
+            --accent-blue: #00f2ff;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
 
-  <!-- OpenStreetMap & Leaflet.js (Mapa 100% Gratis) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
 
-  <style>
-    :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --accent-gold: #e5a93c;
-      --accent-orange: #f28b18; /* Naranja estilo chaleco de mototaxista */
-      --text-light: #f5f5f5;
-      --text-muted: #a0a0a0;
-      --whatsapp-green: #25d366;
-    }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-    }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-light);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px 15px;
-    }
+        header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-    .container {
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+        .logo-container {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            border: 2px solid rgba(0, 242, 255, 0.3);
+            overflow: hidden;
+        }
 
-    /* Header & Logo */
-    header {
-      text-align: center;
-      padding: 10px 0;
-    }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    header img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 4px 15px rgba(229, 169, 60, 0.2);
-      margin-bottom: 8px;
-    }
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
 
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
+        h1 span {
+            color: var(--accent-orange);
+        }
 
-    header h1 span {
-      color: var(--accent-orange);
-    }
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
 
-    header p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
+        /* Widget Dólar BCV */
+        .bcv-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
 
-    /* Tasa Dólar Banner */
-    .tasa-card {
-      background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-      border-left: 4px solid var(--accent-gold);
-      border-radius: 10px;
-      padding: 10px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-    }
+        .bcv-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-    .tasa-card strong {
-      color: var(--accent-gold);
-    }
+        .bcv-rate {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-orange);
+        }
 
-    /* Vistas de Secciones */
-    .view-section {
-      display: none;
-    }
+        /* Secciones y Pantallas */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
 
-    .view-section.active {
-      display: block;
-    }
+        .card:active {
+            transform: scale(0.98);
+        }
 
-    .btn-back {
-      background: none;
-      border: none;
-      color: var(--accent-gold);
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 15px;
-    }
+        .role-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            cursor: pointer;
+        }
 
-    /* Pantalla de Selección (Rol) */
-    .role-selection {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 10px;
-    }
+        .role-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .role-card {
-      background-color: var(--card-bg);
-      border: 2px solid #333;
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    }
+        .role-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
 
-    .role-card:hover, .role-card:active {
-      transform: translateY(-2px);
-    }
+        .client-card {
+            border-left: 4px solid var(--accent-orange);
+        }
 
-    .role-card.cliente {
-      border-color: rgba(229, 169, 60, 0.4);
-    }
+        .driver-card {
+            border-left: 4px solid var(--accent-blue);
+        }
 
-    .role-card.cliente i, .role-card.cliente h3 {
-      color: var(--accent-gold);
-    }
+        /* Botones generales */
+        .btn {
+            background: linear-gradient(135deg, var(--accent-orange), #ea580c);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            transition: opacity 0.2s;
+        }
 
-    /* Tarjeta Naranja para Mototaxista */
-    .role-card.mototaxista {
-      border-color: rgba(242, 139, 24, 0.6);
-    }
+        .btn:hover {
+            opacity: 0.9;
+        }
 
-    .role-card.mototaxista i, .role-card.mototaxista h3 {
-      color: var(--accent-orange);
-    }
+        .btn-secondary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            box-shadow: 0 4px 12px rgba(0, 242, 255, 0.2);
+        }
 
-    .role-card i {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
 
-    .role-card h3 {
-      font-size: 1.2rem;
-      margin-bottom: 5px;
-    }
+        /* Mapa y Formularios */
+        #map {
+            width: 100%;
+            height: 220px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .role-card p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
+        .form-group {
+            margin-bottom: 16px;
+        }
 
-    /* Formulario de Cliente */
-    .booking-card {
-      background-color: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    }
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
 
-    .booking-card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--accent-gold);
-    }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+        }
 
-    .form-group {
-      margin-bottom: 12px;
-    }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+        }
 
-    .form-group label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
+        .hidden {
+            display: none !important;
+        }
 
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px 12px;
-      background-color: #121212;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--accent-orange);
-    }
-
-    .btn-gps {
-      background: none;
-      border: none;
-      color: var(--accent-orange);
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 600;
-    }
-
-    /* Mapa Contenedor */
-    #mapa-container {
-      width: 100%;
-      height: 180px;
-      border-radius: 10px;
-      margin-top: 10px;
-      border: 1px solid #333;
-      z-index: 1;
-    }
-
-    .fare-summary {
-      background-color: #161616;
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 12px;
-      text-align: center;
-    }
-
-    .fare-summary p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .fare-amount {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin: 3px 0;
-    }
-
-    .fare-bs {
-      font-size: 0.85rem;
-      color: var(--text-light);
-    }
-
-    .btn-whatsapp {
-      width: 100%;
-      padding: 14px;
-      background-color: var(--whatsapp-green);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 15px;
-      text-decoration: none;
-    }
-
-    /* Timer Card */
-    .timer-card {
-      background-color: var(--card-bg);
-      border: 2px solid var(--accent-orange);
-      border-radius: 16px;
-      padding: 25px 20px;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    }
-
-    .timer-card i {
-      font-size: 3rem;
-      color: var(--accent-orange);
-      margin-bottom: 10px;
-    }
-
-    .timer-card h2 {
-      font-size: 1.2rem;
-      margin-bottom: 8px;
-    }
-
-    .timer-card p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 15px;
-    }
-
-    .countdown-number {
-      font-size: 3rem;
-      font-weight: 700;
-      color: var(--accent-orange);
-      margin: 10px 0;
-    }
-
-    .btn-cancelar {
-      width: 100%;
-      padding: 12px;
-      background-color: #2a2a2a;
-      color: #fff;
-      border: 1px solid #444;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: auto;
-      padding: 15px 0;
-    }
-  </style>
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Header principal -->
-    <header>
-      <img src="assets/logo.png" alt="ElPanaMoto Logo" onerror="this.src='https://via.placeholder.com/100/121212/e5a93c?text=ElPanaMoto'">
-      <h1>ELPANA<span>MOTO</span></h1>
-      <p>Servicio de Mototaxi • Barinas</p>
-    </header>
+    <div class="container" id="app">
+        <!-- HEADER -->
+        <header>
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="ElPanaMoto Logo">
+            </div>
+            <h1>ELPANA<span>MOTO</span></h1>
+            <div class="subtitle">Servicio de Mototaxi • Barinas</div>
+        </header>
 
-    <!-- Indicador Tasa Oficial -->
-    <div class="tasa-card">
-      <span><i class="fa-solid fa-chart-line"></i> Dólar BCV:</span>
-      <strong id="tasa-dolar">Cargando...</strong>
+        <!-- WIDGET BCV -->
+        <div class="bcv-card">
+            <div class="bcv-title">
+                <span>📈 Dólar BCV:</span>
+            </div>
+            <div class="bcv-rate" id="bcv-display">Cargando...</div>
+        </div>
+
+        <!-- PANTALLA PRINCIPAL: SELECCIÓN DE ROL -->
+        <div id="screen-home" class="container">
+            <div style="text-align: center; margin: 10px 0; font-size: 15px; font-weight: 600;">
+                ¿Cómo deseas usar la app?
+            </div>
+
+            <div class="card card-selector client-card" onclick="switchScreen('client')">
+                <div class="role-title">👤 Soy Cliente</div>
+                <div class="role-desc">Necesito pedir una carrera o encomienda rápida y segura en Barinas.</div>
+            </div>
+
+            <div class="card card-selector driver-card" onclick="switchScreen('driver')">
+                <div class="role-title">🏍️ Soy Mototaxista</div>
+                <div class="role-desc">Quiero unirme al equipo, trabajar con ustedes y sumar más carreras diarias.</div>
+            </div>
+        </div>
+
+        <!-- PANTALLA CLIENTE -->
+        <div id="screen-client" class="container hidden">
+            <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
+            <div class="card">
+                <div class="role-title" style="color: var(--accent-orange);">Solicitar Carrera</div>
+                
+                <div id="map"></div>
+
+                <div class="form-group">
+                    <label>Punto de Partida (Origen)</label>
+                    <input type="text" id="origen" placeholder="Ej. Terminal de Barinas, Alto Prado...">
+                </div>
+
+                <div class="form-group">
+                    <label>Destino</label>
+                    <input type="text" id="destino" placeholder="Ej. C.C. Cima, Av. 23 de Enero...">
+                </div>
+
+                <button class="btn" onclick="enviarPedidoWhatsApp()">Pedir por WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA MOTOTAXISTA -->
+        <div id="screen-driver" class="container hidden">
+            <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
+            <div class="card driver-card">
+                <div class="role-title" style="color: var(--accent-blue);">Registro de Conductor</div>
+                <p class="role-desc" style="margin-bottom: 16px;">Súmate a la flota de ElPanaMoto. Afiliación semanal accesible y alta demanda de carreras.</p>
+
+                <div class="form-group">
+                    <label>Nombre y Apellido</label>
+                    <input type="text" id="driver-nombre" placeholder="Tu nombre completo">
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo y Marca de Moto</label>
+                    <input type="text" id="driver-moto" placeholder="Ej. Empire Keeway TX 200">
+                </div>
+
+                <div class="form-group">
+                    <label>Zona o Base en Barinas</label>
+                    <input type="text" id="driver-zona" placeholder="Ej. Centro, Los Pozones, Alto Viento">
+                </div>
+
+                <button class="btn btn-secondary" onclick="enviarRegistroConductor()">Enviar Solicitud al WhatsApp</button>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Hecho en Barinas 🇻🇪 • ElPanaMoto 2026
+        </div>
     </div>
 
-    <!-- VISTA 1: SELECCIÓN DE ROL (Inicio) -->
-    <div id="view-home" class="view-section active">
-      <div style="text-align: center; margin-bottom: 15px;">
-        <h2 style="font-size: 1.1rem; color: var(--text-light);">¿Cómo deseas usar la app?</h2>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Selecciona una opción para continuar</p>
-      </div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-      <div class="role-selection">
-        <!-- Opción Cliente -->
-        <div class="role-card cliente" onclick="cambiarVista('cliente')">
-          <i class="fa-solid fa-user-check"></i>
-          <h3>Soy Cliente</h3>
-          <p>Necesito pedir una carrera o encomienda rápida y segura.</p>
-        </div>
+    <script>
+        // Navegación entre pantallas
+        function switchScreen(screen) {
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-client').classList.add('hidden');
+            document.getElementById('screen-driver').classList.add('hidden');
 
-        <!-- Opción Mototaxista (Naranja) -->
-        <div class="role-card mototaxista" onclick="iniciarCuentaRegresivaMototaxista()">
-          <i class="fa-solid fa-motorcycle"></i>
-          <h3>Soy Mototaxista</h3>
-          <p>Quiero unirme al equipo, trabajar con ustedes y sumar más carreras.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- VISTA 2: FORMULARIO CLIENTE -->
-    <div id="view-cliente" class="view-section">
-      <button class="btn-back" onclick="cambiarVista('home')">
-        <i class="fa-solid fa-arrow-left"></i> Volver al inicio
-      </button>
-
-      <div class="booking-card">
-        <h2><i class="fa-solid fa-map-location-dot"></i> Solicitar Carrera</h2>
-
-        <div class="form-group">
-          <label for="origen">
-            <span><i class="fa-solid fa-location-dot"></i> Punto de Origen:</span>
-            <button class="btn-gps" onclick="obtenerUbicacionGPS()"><i class="fa-solid fa-crosshairs"></i> Mi Ubicación</button>
-          </label>
-          <input type="text" id="origen" placeholder="Ej: Alto Barinas, C.C. El Dorado">
-        </div>
-
-        <div class="form-group">
-          <label for="destino"><i class="fa-solid fa-flag-checkered"></i> Punto de Destino:</label>
-          <input type="text" id="destino" placeholder="Ej: Centro, Av. 23 de Enero">
-        </div>
-
-        <div class="form-group">
-          <label for="tipo-servicio"><i class="fa-solid fa-box"></i> Tipo de Servicio:</label>
-          <select id="tipo-servicio" onchange="calcularEstimado()">
-            <option value="2.00">Traslado de Pasajero ($2.00)</option>
-            <option value="2.50">Encomienda / Delivery ($2.50)</option>
-            <option value="3.00">Carrera Nocturna / Larga ($3.00)</option>
-          </select>
-        </div>
-
-        <!-- Mapa interactivo gratis -->
-        <div id="mapa-container"></div>
-
-        <div class="fare-summary">
-          <p>Monto Estimado:</p>
-          <div class="fare-amount" id="monto-usd">$2.00 USD</div>
-          <div class="fare-bs" id="monto-bs">Calculando en Bolívares...</div>
-        </div>
-
-        <button class="btn-whatsapp" onclick="solicitarCarrera()">
-          <i class="fa-brands fa-whatsapp fa-lg"></i> Enviar Pedido a la Central
-        </button>
-      </div>
-    </div>
-
-    <!-- VISTA 3: CUENTA REGRESIVA MOTOTAXISTA -->
-    <div id="view-timer" class="view-section">
-      <div class="timer-card">
-        <i class="fa-solid fa-id-card"></i>
-        <h2>Unirse como Mototaxista</h2>
-        <p>Te redirigiremos a la central de WhatsApp de ElPanaMoto para enviar tus datos:</p>
-        
-        <div class="countdown-number" id="timer-count">5</div>
-
-        <!-- Botón directo a WhatsApp nativo -->
-        <a id="btn-ir-whatsapp" href="#" class="btn-whatsapp" style="margin-top: 10px;" onclick="cancelarCuentaRegresiva()">
-          <i class="fa-brands fa-whatsapp fa-lg"></i> Ir a WhatsApp Ahora
-        </a>
-
-        <button class="btn-cancelar" onclick="cancelarCuentaRegresiva()">
-          <i class="fa-solid fa-arrow-left"></i> Cancelar y Volver al inicio
-        </button>
-      </div>
-    </div>
-
-    <!-- Footer Limpio -->
-    <footer>
-      🇻🇪 ElPanaMoto • Movilidad rápida, segura y confiable
-    </footer>
-  </div>
-
-  <script>
-    const telefonoCentral = "584245981602"; // Número oficial Movistar
-    let precioDolar = 0;
-    let timerInterval = null;
-    let mapa = null;
-    let marcardorOrigen = null;
-    let latOrigen = null;
-    let lngOrigen = null;
-
-    // Control de pantallas e historial del navegador
-    function cambiarVista(vista, pushState = true) {
-      if (timerInterval) clearInterval(timerInterval);
-
-      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-      
-      if (vista === 'cliente') {
-        document.getElementById('view-cliente').classList.add('active');
-        if (pushState) history.pushState({ vista: 'cliente' }, '', '#cliente');
-        calcularEstimado();
-        inicializarMapa();
-      } else if (vista === 'timer') {
-        document.getElementById('view-timer').classList.add('active');
-        if (pushState) history.pushState({ vista: 'timer' }, '', '#timer');
-      } else {
-        document.getElementById('view-home').classList.add('active');
-        if (pushState) history.pushState({ vista: 'home' }, '', '#inicio');
-      }
-    }
-
-    // Intercepta el botón de "atrás" del teléfono o los gestos
-    window.addEventListener('popstate', (e) => {
-      if (e.state && e.state.vista) {
-        cambiarVista(e.state.vista, false);
-      } else {
-        cambiarVista('home', false);
-      }
-    });
-
-    // Timer de 5 segundos con simulación de click para abrir WhatsApp Nativo
-    function iniciarCuentaRegresivaMototaxista() {
-      const mensaje = `¡Hola, ElPanaMoto! 🏍️💨\n` +
-                      `Soy mototaxista, tengo unidad propia y quiero unirme al equipo y al grupo de trabajo en Barinas.\n\n` +
-                      `¿Qué requisitos necesito consignar?`;
-      
-      // Enlace universal directo a la app de WhatsApp
-      const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telefonoCentral}&text=${encodeURIComponent(mensaje)}`;
-      
-      const btnWa = document.getElementById('btn-ir-whatsapp');
-      btnWa.href = urlWhatsapp;
-
-      cambiarVista('timer');
-      let contador = 5;
-      document.getElementById('timer-count').innerText = contador;
-
-      timerInterval = setInterval(() => {
-        contador--;
-        document.getElementById('timer-count').innerText = contador;
-
-        if (contador <= 0) {
-          clearInterval(timerInterval);
-          // Simular click físico en el enlace para abrir WhatsApp de una
-          btnWa.click();
-          cambiarVista('home');
-        }
-      }, 1000);
-    }
-
-    function cancelarCuentaRegresiva() {
-      if (timerInterval) clearInterval(timerInterval);
-      cambiarVista('home');
-    }
-
-    // Tasa BCV oficial
-    async function obtenerTasaDolar() {
-      try {
-        const response = await fetch("https://ve.dolarapi.com/v1/dolares/oficial");
-        const data = await response.json();
-        precioDolar = data.promedio;
-        document.getElementById("tasa-dolar").innerText = `${precioDolar.toFixed(2)} Bs/USD`;
-        calcularEstimado();
-      } catch (error) {
-        precioDolar = 100;
-        document.getElementById("tasa-dolar").innerText = `${precioDolar.toFixed(2)} Bs (Respaldo)`;
-        calcularEstimado();
-      }
-    }
-
-    // Mapa Gratis (OpenStreetMap + Leaflet.js)
-    function inicializarMapa() {
-      if (mapa !== null) return;
-
-      mapa = L.map('mapa-container').setView([8.6226, -70.2075], 13);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-      }).addTo(mapa);
-
-      mapa.on('click', function(e) {
-        latOrigen = e.latlng.lat;
-        lngOrigen = e.latlng.lng;
-        
-        if (marcardorOrigen) {
-          marcardorOrigen.setLatLng(e.latlng);
-        } else {
-          marcardorOrigen = L.marker(e.latlng).addTo(mapa);
+            if (screen === 'home') {
+                document.getElementById('screen-home').classList.remove('hidden');
+            } else if (screen === 'client') {
+                document.getElementById('screen-client').classList.remove('hidden');
+                setTimeout(() => { initMap(); }, 300); // Cargar mapa con delay para evitar errores de renderizado
+            } else if (screen === 'driver') {
+                document.getElementById('screen-driver').classList.remove('hidden');
+            }
         }
 
-        document.getElementById('origen').value = `Ubicación en mapa (${latOrigen.toFixed(4)}, ${lngOrigen.toFixed(4)})`;
-      });
-    }
+        // Inicializar Mapa con Leaflet (Centrado en Barinas, Venezuela)
+        let map = null;
+        function initMap() {
+            if (map != null) {
+                map.invalidateSize();
+                return;
+            }
+            // Coordenadas aproximadas de Barinas, Venezuela
+            const barinasLat = 8.6226;
+            const barinasLng = -70.2075;
 
-    // GPS del teléfono
-    function obtenerUbicacionGPS() {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            latOrigen = position.coords.latitude;
-            lngOrigen = position.coords.longitude;
+            map = L.map('map').setView([barinasLat, barinasLng], 14);
 
-            if (mapa) {
-              mapa.setView([latOrigen, lngOrigen], 16);
-              if (marcardorOrigen) {
-                marcardorOrigen.setLatLng([latOrigen, lngOrigen]);
-              } else {
-                marcardorOrigen = L.marker([latOrigen, lngOrigen]).addTo(mapa);
-              }
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Marcador inicial
+            L.marker([barinasLat, barinasLng]).addTo(map)
+                .bindPopup('<b>ElPanaMoto Base</b><br>Barinas, Venezuela')
+                .openPopup();
+        }
+
+        // Obtener Tasa BCV en Tiempo Real
+        async function fetchBCV() {
+            const display = document.getElementById('bcv-display');
+            try {
+                // API pública de respaldo para dólar BCV en Venezuela
+                const response = await fetch('https://pydolarvenezuela-api.vercel.app/api/v1/dollar?monitor=bcv');
+                const data = await response.json();
+                if (data && data.price) {
+                    display.innerText = data.price.toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' Bs/USD';
+                } else {
+                    display.innerText = '881.07 Bs/USD'; // Respaldo predeterminado
+                }
+            } catch (error) {
+                display.innerText = '881.07 Bs/USD'; // Valor de respaldo seguro
+            }
+        }
+
+        // Enviar pedido de cliente a WhatsApp Business (+58 424-5981602)
+        function enviarPedidoWhatsApp() {
+            const origen = document.getElementById('origen').value.trim();
+            const destino = document.getElementById('destino').value.trim();
+
+            if (!origen || !destino) {
+                alert('Por favor, indica el punto de partida y el destino.');
+                return;
             }
 
-            document.getElementById('origen').value = `GPS: (${latOrigen.toFixed(5)}, ${lngOrigen.toFixed(5)})`;
-          },
-          (error) => {
-            alert("No se pudo obtener la ubicación GPS. Escribe la dirección manualmente.");
-          },
-          { enableHighAccuracy: true }
-        );
-      } else {
-        alert("Tu dispositivo no soporta geolocalización.");
-      }
-    }
+            const telefono = '584245981602';
+            const mensaje = `¡Hola, ElPanaMoto! 🏍️ Necesito una carrera en Barinas.%0A%0A📍 *Origen:* ${origen}%0A🏁 *Destino:* ${destino}%0A%0A¡Quedo atento!`;
+            
+            window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+        }
 
-    // Cálculo de montos
-    function calcularEstimado() {
-      const tarifaUsd = parseFloat(document.getElementById("tipo-servicio").value) || 2.00;
-      const totalBs = (tarifaUsd * (precioDolar || 1)).toFixed(2);
+        // Enviar solicitud de mototaxista a WhatsApp Business
+        function enviarRegistroConductor() {
+            const nombre = document.getElementById('driver-nombre').value.trim();
+            const moto = document.getElementById('driver-moto').value.trim();
+            const zona = document.getElementById('driver-zona').value.trim();
 
-      document.getElementById("monto-usd").innerText = `$${tarifaUsd.toFixed(2)} USD`;
-      document.getElementById("monto-bs").innerText = `~ ${totalBs} Bs.`;
-    }
+            if (!nombre || !moto || !zona) {
+                alert('Por favor, completa todos los campos del registro.');
+                return;
+            }
 
-    // Enviar pedido de Cliente directo a WhatsApp
-    function solicitarCarrera() {
-      const origen = document.getElementById("origen").value.trim();
-      const destino = document.getElementById("destino").value.trim();
-      const tarifaUsd = parseFloat(document.getElementById("tipo-servicio").value) || 2.00;
-      const totalBs = (tarifaUsd * (precioDolar || 1)).toFixed(2);
+            const telefono = '584245981602';
+            const mensaje = `¡Hola, ElPanaMoto! 🛵 Quiero registrarme como conductor.%0A%0A👤 *Nombre:* ${nombre}%0A🏍️ *Moto:* ${moto}%0A📍 *Zona:* ${zona}%0A%0A¡Espero su respuesta para afiliarme!`;
+            
+            window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+        }
 
-      if (!origen || !destino) {
-        alert("Por favor, ingresa el origen y el destino.");
-        return;
-      }
-
-      let mapaUbicacionLink = "";
-      if (latOrigen && lngOrigen) {
-        mapaUbicacionLink = `\n📍 *Ubicación GPS:* https://maps.google.com/?q=${latOrigen},${lngOrigen}`;
-      }
-
-      const mensaje = `¡Hola, ElPanaMoto! 🏍️💨\n` +
-                      `Deseo solicitar un servicio:\n\n` +
-                      `📍 *Origen:* ${origen}${mapaUbicacionLink}\n` +
-                      `🏁 *Destino:* ${destino}\n` +
-                      `💵 *Monto estimado:* $${tarifaUsd.toFixed(2)} USD (~${totalBs} Bs)\n\n` +
-                      `¿Tienen unidad disponible?`;
-
-      const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telefonoCentral}&text=${encodeURIComponent(mensaje)}`;
-      window.location.href = urlWhatsapp;
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      obtenerTasaDolar();
-      history.replaceState({ vista: 'home' }, '', '#inicio');
-    });
-  </script>
+        // Ejecutar al cargar la página
+        window.onload = function() {
+            fetchBCV();
+        };
+    </script>
 </body>
 </html>
