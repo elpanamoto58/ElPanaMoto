@@ -190,7 +190,7 @@
             align-self: flex-start;
         }
 
-        /* Mapa de Tamaño Completo y Ocultar Atribución de Leaflet (bandera no deseada) */
+        /* Mapa y eliminación total de la banderita de Leaflet */
         #map {
             width: 100%;
             height: 280px;
@@ -200,8 +200,12 @@
             z-index: 1;
         }
         
-        .leaflet-control-attribution {
+        .leaflet-control-attribution, 
+        .leaflet-control-attribution a, 
+        .leaflet-control-attribution img {
             display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
         }
 
         .form-group {
@@ -347,14 +351,12 @@
             const barinasLat = 8.6226;
             const barinasLng = -70.2075;
 
+            // Inicializar mapa sin controles de atribución
             map = L.map('map', {attributionControl: false}).setView([barinasLat, barinasLng], 14);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19
             }).addTo(map);
-
-            // Marcador totalmente limpio sin popups ni globos de texto
-            L.marker([barinasLat, barinasLng]).addTo(map);
         }
 
         async function fetchBCV() {
