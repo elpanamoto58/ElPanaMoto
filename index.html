@@ -8,9 +8,8 @@
     <!-- Configuración PWA y Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f97316">
-    <link rel="icon" type="image/png" href="assets/logo.png">
 
-    <!-- Leaflet CSS para el mapa -->
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
@@ -66,15 +65,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
             border: 2px solid var(--accent-orange);
             overflow: hidden;
         }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .logo-container svg {
+            width: 60px;
+            height: 60px;
         }
 
         h1 {
@@ -94,7 +92,7 @@
             letter-spacing: 1.5px;
         }
 
-        /* Widget Dólar BCV */
+        /* Dólar BCV */
         .bcv-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-orange);
@@ -165,27 +163,19 @@
             text-transform: uppercase;
         }
 
-        /* Tarjetas de Selección */
+        /* Tarjetas */
         .card {
             background-color: var(--card-bg);
             border-radius: 16px;
             padding: 24px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .card:active {
-            transform: scale(0.98);
+            transition: transform 0.2s ease;
         }
 
         .card-selector {
             border-left: 4px solid var(--accent-orange);
             cursor: pointer;
-        }
-
-        .card-selector:hover {
-            border-color: var(--accent-orange);
         }
 
         .role-title {
@@ -204,7 +194,6 @@
             line-height: 1.4;
         }
 
-        /* Botones */
         .btn {
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-hover));
             color: white;
@@ -217,11 +206,6 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
-            transition: opacity 0.2s;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
         }
 
         .btn-back {
@@ -232,11 +216,9 @@
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
-            align-self: flex-start;
             margin-bottom: 10px;
         }
 
-        /* Mapa y Formularios */
         #map {
             width: 100%;
             height: 220px;
@@ -256,7 +238,7 @@
             margin-bottom: 6px;
         }
 
-        input, select, textarea {
+        input {
             width: 100%;
             padding: 12px;
             background-color: #0d0d0d;
@@ -266,7 +248,7 @@
             font-size: 15px;
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus {
             outline: none;
             border-color: var(--accent-orange);
         }
@@ -285,11 +267,16 @@
 </head>
 <body>
 
-    <div class="container" id="app">
-        <!-- HEADER -->
+    <div class="container">
+        <!-- HEADER CON MOTO EN SVG VECTORIAL (NUNCA SE ROMPE) -->
         <header>
             <div class="logo-container">
-                <img src="assets/logo.png" alt="ElPanaMoto Logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#00f2ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="5.5" cy="17.5" r="3.5"/>
+                    <circle cx="18.5" cy="17.5" r="3.5"/>
+                    <path d="M15 6h2l3 5-3 3h-4l-2-5H6"/>
+                    <path d="M9 17l2-6"/>
+                </svg>
             </div>
             <h1>ELPANA<span>MOTO</span></h1>
             <div class="subtitle">Servicio de Mototaxi • Barinas</div>
@@ -303,7 +290,7 @@
             <div class="bcv-rate" id="bcv-display">Cargando...</div>
         </div>
 
-        <!-- BANNER DE CUENTA REGRESIVA -->
+        <!-- CUENTA REGRESIVA NARANJA -->
         <div class="countdown-card">
             <div class="countdown-title">🚀 Próximo Lanzamiento Oficial</div>
             <div class="timer-grid">
@@ -326,9 +313,9 @@
             </div>
         </div>
 
-        <!-- PANTALLA PRINCIPAL: SELECCIÓN DE ROL -->
+        <!-- PANTALLA PRINCIPAL -->
         <div id="screen-home" class="container">
-            <div style="text-align: center; margin: 10px 0; font-size: 15px; font-weight: 600;">
+            <div style="text-align: center; margin: 5px 0; font-size: 15px; font-weight: 600;">
                 ¿Cómo deseas usar la app?
             </div>
 
@@ -348,7 +335,6 @@
             <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
             <div class="card">
                 <div class="role-title">Solicitar Carrera</div>
-                
                 <div id="map"></div>
 
                 <div class="form-group">
@@ -400,7 +386,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Navegación entre pantallas
         function switchScreen(screen) {
             document.getElementById('screen-home').classList.add('hidden');
             document.getElementById('screen-client').classList.add('hidden');
@@ -416,7 +401,6 @@
             }
         }
 
-        // Mapa con Leaflet (Barinas, Venezuela)
         let map = null;
         function initMap() {
             if (map != null) {
@@ -438,7 +422,6 @@
                 .openPopup();
         }
 
-        // Obtener Dólar BCV
         async function fetchBCV() {
             const display = document.getElementById('bcv-display');
             try {
@@ -454,9 +437,7 @@
             }
         }
 
-        // Cuenta Regresiva (Ajustable a tu fecha objetivo)
         function startCountdown() {
-            // Fecha objetivo: 1 de Noviembre 2026 (puedes ajustar esta fecha)
             const targetDate = new Date('November 1, 2026 00:00:00').getTime();
 
             setInterval(() => {
@@ -473,16 +454,10 @@
                     document.getElementById('hours').innerText = String(h).padStart(2, '0');
                     document.getElementById('minutes').innerText = String(m).padStart(2, '0');
                     document.getElementById('seconds').innerText = String(s).padStart(2, '0');
-                } else {
-                    document.getElementById('days').innerText = '00';
-                    document.getElementById('hours').innerText = '00';
-                    document.getElementById('minutes').innerText = '00';
-                    document.getElementById('seconds').innerText = '00';
                 }
             }, 1000);
         }
 
-        // Pedido Cliente a WhatsApp
         function enviarPedidoWhatsApp() {
             const origen = document.getElementById('origen').value.trim();
             const destino = document.getElementById('destino').value.trim();
@@ -498,7 +473,6 @@
             window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
         }
 
-        // Registro Mototaxista a WhatsApp
         function enviarRegistroConductor() {
             const nombre = document.getElementById('driver-nombre').value.trim();
             const moto = document.getElementById('driver-moto').value.trim();
