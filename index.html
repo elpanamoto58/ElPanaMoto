@@ -8,6 +8,7 @@
     <!-- Configuración PWA y Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f97316">
+    <link rel="icon" type="image/png" href="assets/logo.png">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -70,9 +71,10 @@
             overflow: hidden;
         }
 
-        .logo-container svg {
-            width: 60px;
-            height: 60px;
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         h1 {
@@ -92,7 +94,7 @@
             letter-spacing: 1.5px;
         }
 
-        /* Dólar BCV */
+        /* Widget BCV */
         .bcv-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-orange);
@@ -116,51 +118,6 @@
             font-size: 16px;
             font-weight: 700;
             color: var(--accent-orange);
-        }
-
-        /* BANNER CUENTA REGRESIVA */
-        .countdown-card {
-            background: linear-gradient(135deg, #1f140e 0%, #0d0d0d 100%);
-            border: 1px solid var(--accent-orange);
-            border-radius: 14px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(249, 115, 22, 0.15);
-        }
-
-        .countdown-title {
-            font-size: 13px;
-            color: var(--accent-orange);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .timer-grid {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .timer-box {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--border-orange);
-            border-radius: 8px;
-            padding: 8px 12px;
-            min-width: 60px;
-        }
-
-        .timer-num {
-            font-size: 20px;
-            font-weight: 800;
-            color: #ffffff;
-        }
-
-        .timer-label {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
         }
 
         /* Tarjetas */
@@ -192,6 +149,7 @@
             font-size: 14px;
             color: var(--text-muted);
             line-height: 1.4;
+            margin-bottom: 16px;
         }
 
         .btn {
@@ -206,6 +164,13 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+            transition: background 0.3s ease;
+        }
+
+        .btn:disabled {
+            background: #444444;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .btn-back {
@@ -227,32 +192,6 @@
             border: 1px solid var(--border-orange);
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            background-color: #0d0d0d;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            color: white;
-            font-size: 15px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--accent-orange);
-        }
-
         .hidden {
             display: none !important;
         }
@@ -268,15 +207,10 @@
 <body>
 
     <div class="container">
-        <!-- HEADER CON MOTO EN SVG VECTORIAL (NUNCA SE ROMPE) -->
+        <!-- HEADER CON LOGO -->
         <header>
             <div class="logo-container">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#00f2ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="5.5" cy="17.5" r="3.5"/>
-                    <circle cx="18.5" cy="17.5" r="3.5"/>
-                    <path d="M15 6h2l3 5-3 3h-4l-2-5H6"/>
-                    <path d="M9 17l2-6"/>
-                </svg>
+                <img src="assets/logo.png" alt="ElPanaMoto Logo">
             </div>
             <h1>ELPANA<span>MOTO</span></h1>
             <div class="subtitle">Servicio de Mototaxi • Barinas</div>
@@ -288,29 +222,6 @@
                 <span>📈 Dólar BCV:</span>
             </div>
             <div class="bcv-rate" id="bcv-display">Cargando...</div>
-        </div>
-
-        <!-- CUENTA REGRESIVA NARANJA -->
-        <div class="countdown-card">
-            <div class="countdown-title">🚀 Próximo Lanzamiento Oficial</div>
-            <div class="timer-grid">
-                <div class="timer-box">
-                    <div class="timer-num" id="days">00</div>
-                    <div class="timer-label">Días</div>
-                </div>
-                <div class="timer-box">
-                    <div class="timer-num" id="hours">00</div>
-                    <div class="timer-label">Horas</div>
-                </div>
-                <div class="timer-box">
-                    <div class="timer-num" id="minutes">00</div>
-                    <div class="timer-label">Min</div>
-                </div>
-                <div class="timer-box">
-                    <div class="timer-num" id="seconds">00</div>
-                    <div class="timer-label">Seg</div>
-                </div>
-            </div>
         </div>
 
         <!-- PANTALLA PRINCIPAL -->
@@ -335,19 +246,11 @@
             <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
             <div class="card">
                 <div class="role-title">Solicitar Carrera</div>
+                <p class="role-desc">Ubícate en el mapa y presiona el botón para solicitar tu moto directamente por WhatsApp.</p>
+                
                 <div id="map"></div>
 
-                <div class="form-group">
-                    <label>Punto de Partida (Origen)</label>
-                    <input type="text" id="origen" placeholder="Ej. Terminal de Barinas, Alto Prado...">
-                </div>
-
-                <div class="form-group">
-                    <label>Destino</label>
-                    <input type="text" id="destino" placeholder="Ej. C.C. Cima, Av. 23 de Enero...">
-                </div>
-
-                <button class="btn" onclick="enviarPedidoWhatsApp()">Pedir por WhatsApp</button>
+                <button class="btn" id="btn-cliente" onclick="iniciarRedireccionCliente()">Pedir por WhatsApp</button>
             </div>
         </div>
 
@@ -356,24 +259,9 @@
             <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
             <div class="card card-selector">
                 <div class="role-title">Registro de Conductor</div>
-                <p class="role-desc" style="margin-bottom: 16px;">Súmate a la flota de ElPanaMoto. Afiliación semanal accesible y alta demanda de carreras.</p>
+                <p class="role-desc">Súmate a la flota de ElPanaMoto. Afiliación semanal accesible y alta demanda de carreras en Barinas. Toca el botón para enviar tu solicitud directamente al WhatsApp oficial.</p>
 
-                <div class="form-group">
-                    <label>Nombre y Apellido</label>
-                    <input type="text" id="driver-nombre" placeholder="Tu nombre completo">
-                </div>
-
-                <div class="form-group">
-                    <label>Modelo y Marca de Moto</label>
-                    <input type="text" id="driver-moto" placeholder="Ej. Empire Keeway TX 200">
-                </div>
-
-                <div class="form-group">
-                    <label>Zona o Base en Barinas</label>
-                    <input type="text" id="driver-zona" placeholder="Ej. Centro, Los Pozones, Alto Viento">
-                </div>
-
-                <button class="btn" onclick="enviarRegistroConductor()">Enviar Solicitud al WhatsApp</button>
+                <button class="btn" id="btn-driver" onclick="iniciarRedireccionDriver()">Enviar Solicitud al WhatsApp</button>
             </div>
         </div>
 
@@ -437,61 +325,52 @@
             }
         }
 
-        function startCountdown() {
-            const targetDate = new Date('November 1, 2026 00:00:00').getTime();
+        // REDIRECCIÓN DIRECTA A WHATSAPP (CLIENTE)
+        function iniciarRedireccionCliente() {
+            const btn = document.getElementById('btn-cliente');
+            let segundos = 5;
+            btn.disabled = true;
 
-            setInterval(() => {
-                const now = new Date().getTime();
-                const difference = targetDate - now;
+            const intervalo = setInterval(() => {
+                btn.innerText = `Redirigiendo a WhatsApp en ${segundos}s...`;
+                segundos--;
 
-                if (difference > 0) {
-                    const d = Math.floor(difference / (1000 * 60 * 60 * 24));
-                    const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((difference % (1000 * 60)) / 1000);
+                if (segundos < 0) {
+                    clearInterval(intervalo);
+                    btn.innerText = 'Pedir por WhatsApp';
+                    btn.disabled = false;
 
-                    document.getElementById('days').innerText = String(d).padStart(2, '0');
-                    document.getElementById('hours').innerText = String(h).padStart(2, '0');
-                    document.getElementById('minutes').innerText = String(m).padStart(2, '0');
-                    document.getElementById('seconds').innerText = String(s).padStart(2, '0');
+                    const telefono = '584245981602';
+                    const mensaje = `¡Hola, ElPanaMoto! 🏍️ Necesito solicitar una carrera / encomienda en Barinas.%0A%0A📍 *Origen:* %0A🏁 *Destino:* %0A%0A¡Quedo atento a la disponibilidad!`;
+                    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
                 }
             }, 1000);
         }
 
-        function enviarPedidoWhatsApp() {
-            const origen = document.getElementById('origen').value.trim();
-            const destino = document.getElementById('destino').value.trim();
+        // REDIRECCIÓN DIRECTA A WHATSAPP (CONDUCTOR)
+        function iniciarRedireccionDriver() {
+            const btn = document.getElementById('btn-driver');
+            let segundos = 5;
+            btn.disabled = true;
 
-            if (!origen || !destino) {
-                alert('Por favor, indica el punto de partida y el destino.');
-                return;
-            }
+            const intervalo = setInterval(() => {
+                btn.innerText = `Redirigiendo a WhatsApp en ${segundos}s...`;
+                segundos--;
 
-            const telefono = '584245981602';
-            const mensaje = `¡Hola, ElPanaMoto! 🏍️ Necesito una carrera en Barinas.%0A%0A📍 *Origen:* ${origen}%0A🏁 *Destino:* ${destino}%0A%0A¡Quedo atento!`;
-            
-            window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
-        }
+                if (segundos < 0) {
+                    clearInterval(intervalo);
+                    btn.innerText = 'Enviar Solicitud al WhatsApp';
+                    btn.disabled = false;
 
-        function enviarRegistroConductor() {
-            const nombre = document.getElementById('driver-nombre').value.trim();
-            const moto = document.getElementById('driver-moto').value.trim();
-            const zona = document.getElementById('driver-zona').value.trim();
-
-            if (!nombre || !moto || !zona) {
-                alert('Por favor, completa todos los campos del registro.');
-                return;
-            }
-
-            const telefono = '584245981602';
-            const mensaje = `¡Hola, ElPanaMoto! 🛵 Quiero registrarme como conductor.%0A%0A👤 *Nombre:* ${nombre}%0A🏍️ *Moto:* ${moto}%0A📍 *Zona:* ${zona}%0A%0A¡Espero su respuesta para afiliarme!`;
-            
-            window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+                    const telefono = '584245981602';
+                    const mensaje = `¡Hola, ElPanaMoto! 🛵 Quiero registrarme como conductor afiliado.%0A%0A👤 *Nombre:* %0A🏍️ *Moto y Modelo:* %0A📍 *Zona o Base:* %0A%0A¡Espero información sobre los pasos para unirme al equipo!`;
+                    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+                }
+            }, 1000);
         }
 
         window.onload = function() {
             fetchBCV();
-            startCountdown();
         };
     </script>
 </body>
