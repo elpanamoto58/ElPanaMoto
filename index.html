@@ -246,7 +246,7 @@
             <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
             <div class="card">
                 <div class="role-title">Solicitar Carrera</div>
-                <p class="role-desc">Ubícate en el mapa y presiona el botón para solicitar tu moto directamente por WhatsApp.</p>
+                <p class="role-desc">Ubícate en el mapa de Barinas y presiona el botón para solicitar tu moto directamente por WhatsApp.</p>
                 
                 <div id="map"></div>
 
@@ -259,7 +259,7 @@
             <button class="btn-back" onclick="switchScreen('home')">← Volver</button>
             <div class="card card-selector">
                 <div class="role-title">Registro de Conductor</div>
-                <p class="role-desc">Súmate a la flota de ElPanaMoto. Afiliación semanal accesible y alta demanda de carreras en Barinas. Toca el botón para enviar tu solicitud directamente al WhatsApp oficial.</p>
+                <p class="role-desc">Súmate a la flota de ElPanaMoto. Afiliación semanal accesible y alta demanda de carreras en Barinas. Toca el botón para solicitar información directamente por WhatsApp.</p>
 
                 <button class="btn" id="btn-driver" onclick="iniciarRedireccionDriver()">Enviar Solicitud al WhatsApp</button>
             </div>
@@ -325,7 +325,7 @@
             }
         }
 
-        // REDIRECCIÓN DIRECTA A WHATSAPP (CLIENTE)
+        // REDIRECCIÓN CLIENTE
         function iniciarRedireccionCliente() {
             const btn = document.getElementById('btn-cliente');
             let segundos = 5;
@@ -341,13 +341,13 @@
                     btn.disabled = false;
 
                     const telefono = '584245981602';
-                    const mensaje = `¡Hola, ElPanaMoto! 🏍️ Necesito solicitar una carrera / encomienda en Barinas.%0A%0A📍 *Origen:* %0A🏁 *Destino:* %0A%0A¡Quedo atento a la disponibilidad!`;
-                    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+                    const mensaje = `¡Hola, ElPanaMoto! 🏍️ Necesito solicitar una carrera / encomienda en Barinas. ¡Quedo atento a la disponibilidad!`;
+                    window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
                 }
             }, 1000);
         }
 
-        // REDIRECCIÓN DIRECTA A WHATSAPP (CONDUCTOR)
+        // REDIRECCIÓN CONDUCTOR CON LA MOTORRA 🏍️
         function iniciarRedireccionDriver() {
             const btn = document.getElementById('btn-driver');
             let segundos = 5;
@@ -363,8 +363,8 @@
                     btn.disabled = false;
 
                     const telefono = '584245981602';
-                    const mensaje = `¡Hola, ElPanaMoto! 🛵 Quiero registrarme como conductor afiliado.%0A%0A👤 *Nombre:* %0A🏍️ *Moto y Modelo:* %0A📍 *Zona o Base:* %0A%0A¡Espero información sobre los pasos para unirme al equipo!`;
-                    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+                    const mensaje = `¡Hola, ElPanaMoto! 🏍️\nQuiero registrarme como conductor afiliado.\n\n¡Espero información sobre los pasos para unirme al equipo!`;
+                    window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
                 }
             }, 1000);
         }
