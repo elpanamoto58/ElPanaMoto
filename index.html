@@ -190,7 +190,7 @@
             align-self: flex-start;
         }
 
-        /* Mapa y eliminación absoluta de controles/marcas de Leaflet */
+        /* Mapa y eliminación de controles/marcas de Leaflet */
         #map {
             width: 100%;
             height: 280px;
@@ -251,7 +251,7 @@
 <body>
 
     <div class="container">
-        <!-- HEADER CON LOGO REAL -->
+        <!-- HEADER -->
         <header>
             <div class="logo-container">
                 <img src="logo.png" alt="ElPanaMoto Logo">
@@ -358,19 +358,36 @@
             }).addTo(map);
         }
 
+        // CONSUMO EN TIEMPO REAL CON DOBLE API DE RESPALDO
         async function fetchBCV() {
             const display = document.getElementById('bcv-display');
+            
+            // Intento 1: API Principal (PyDolarVenezuela)
             try {
-                const response = await fetch('https://pydolarvenezuela-api.vercel.app/api/v1/dollar?monitor=bcv');
-                const data = await response.json();
+                const res = await fetch('https://pydolarvenezuela-api.vercel.app/api/v1/dollar?monitor=bcv', { cache: 'no-store' });
+                const data = await res.json();
                 if (data && data.price) {
                     display.innerText = data.price.toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' Bs/USD';
-                } else {
-                    display.innerText = '881.07 Bs/USD';
+                    return;
                 }
-            } catch (error) {
-                display.innerText = '881.07 Bs/USD';
+            } catch (e) {
+                console.warn('API principal falló, intentando API de respaldo...');
             }
+
+            // Intento 2: API de Respaldo (DolarApi VE)
+            try {
+                const resBackup = await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { cache: 'no-store' });
+                const dataBackup = await resBackup.json();
+                if (dataBackup && dataBackup.promedio) {
+                    display.innerText = dataBackup.promedio.toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' Bs/USD';
+                    return;
+                }
+            } catch (e) {
+                console.warn('API de respaldo falló.');
+            }
+
+            // Si ambas fallan por desconexión completa
+            display.innerText = 'Consultar al privado';
         }
 
         // CLIENTE: REDIRECCIÓN INSTANTÁNEA
@@ -388,7 +405,7 @@
             window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
-        // CONDUCTOR: CUENTA REGRESIVA DE 5s CON MOTORRA 🏍️
+        // CONDUCTOR: CUENTA REGRESIVA DE 5s
         function iniciarRedireccionDriver() {
             const btn = document.getElementById('btn-driver');
             let segundos = 5;
